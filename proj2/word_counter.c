@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <signal.h>
 #include <fcntl.h>
 
 /*define*/
@@ -25,6 +26,8 @@ void signalHandler(int signum);
 
 /*Main Method*/
 int main(int argc, char** argv){
+
+	signal(SIGUSR1, signalHandler);
 	
 	if(argc == 0 || argc == 1){
 		printf("");
@@ -96,6 +99,9 @@ int main(int argc, char** argv){
 			//close writing end of p_to_c pipe
 			close(p_to_c[1]);
 
+			//wait for SIGUSR1 signal
+			pause();
+
 			//read buffer for child
 			char* read_buffer = (char*) malloc(255 * sizeof(char));
 
@@ -123,11 +129,6 @@ int main(int argc, char** argv){
 			//total_lines += lines;
 			//total_words += words;
 			//total_bytes += bytes;
-
-			
-			//wait for SIGUSR1 signal
-			signal(SIGUSR1, signalHandler);
-			pause();
 
 			//write result to parent
 			write(c_to_p[1], write_buffer, strlen(write_buffer)+1);
@@ -225,5 +226,4 @@ void processTotal(char* return_buffer){
 void signalHandler(int signum){
 	//some handling code here maybe?
 	//signal(SIGUSR1, signalHandler); //rset signal?
-	printf("handle me daddy\n");
 }
